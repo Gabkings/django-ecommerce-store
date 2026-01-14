@@ -1,5 +1,6 @@
 {% include "store/base.html" %}
 
+{% load mathfilters %}
 
 {% load static %}
 
@@ -49,7 +50,7 @@
               
                 <div class="col-6"> Product </div>
               
-                <div class="col-6 text-end"><span class="h6 fw-bold">$ {{ product.price }}</span></div>
+                <div class="col-6 text-end"><span class="h6 fw-bold">$ {{product.price|mul:item.qty}}</span></div>
             
               </div>
             
@@ -139,6 +140,102 @@
   
 
  </main>
+
+ <script>
+
+  // Delete button
+
+    $(document).on('click', '.delete-button', function(e){
+
+      e.preventDefault();
+
+      $.ajax({
+
+          type: 'POST',
+          url: '{% url "cart-delete" %}',
+          data: {
+
+              product_id: $(this).data('index'),
+              csrfmiddlewaretoken: "{{csrf_token}}",
+              action: 'post'
+
+          },
+
+          success: function(json){
+
+              //console.log(json)
+
+              location.reload();
+              
+
+              document.getElementById("cart-qty").textContent = json.qty
+
+              document.getElementById("total").textContent = json.total
+
+
+          },
+
+          error: function(xhr, errmsg, err){
+
+            console.log(err)
+
+
+          }
+
+      });
+
+
+  })
+
+
+  // Update button
+
+  $(document).on('click', '.update-button', function(e){
+
+    e.preventDefault();
+
+    var theproductid = $(this).data('index');
+
+    $.ajax({
+
+        type: 'POST',
+        url: '{% url "cart-update" %}',
+        data: {
+
+            product_id: $(this).data('index'),
+            product_quantity: $('#select' + theproductid + ' option:selected').text(),
+            csrfmiddlewaretoken: "{{csrf_token}}",
+            action: 'post'
+
+        },
+
+        success: function(json){
+
+            //console.log(json)
+
+            location.reload();
+            
+
+            document.getElementById("cart-qty").textContent = json.qty
+
+            document.getElementById("total").textContent = json.total
+
+
+        },
+
+        error: function(xhr, errmsg, err){
+
+
+        }
+
+    });
+
+
+})
+
+
+
+ </script>
 
 
 
